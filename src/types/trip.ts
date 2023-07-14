@@ -1,8 +1,13 @@
 export interface Trip {
-  [day: string]: Day;
+  message: string;
+  days: Days;
 }
 
-interface Day {
+interface Days {
+  [day: string]: Activity[];
+}
+
+interface Activity {
   activityName: string;
   specificLocation: string;
   plannedTime: string;
