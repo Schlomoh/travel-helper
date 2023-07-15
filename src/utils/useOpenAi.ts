@@ -1,8 +1,9 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { Message, OpenAiResponse } from "../types/openAi";
 import { ConversationContext } from "../store";
 import { Trip } from "../types/trip";
 import { Conversation } from "../store/ConversationContext";
+import useCallApi, { CustomOptions } from "./useCallApi";
 
 const KEY = import.meta.env.VITE_OPEN_AI_KEY as string;
 const URL = "https://api.openai.com/v1/chat/completions";
@@ -13,7 +14,7 @@ interface Trip {
   days: {
     [day: string]: {
       activityName: string;
-      specificLocation: string;
+      specificLocation: string; // as "location_name - city, country code"
       plannedTime: string;
       description: string;
     }[];
@@ -27,8 +28,9 @@ function createMessage(msg: string, role: Message["role"]): Message {
   };
 }
 
-async function send(msg: Message, conversation: Conversation) {
-  const options = {
+function createOptions(msg: Message, conversation: Conversation) {
+  return {
+    url: URL,
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -40,46 +42,64 @@ async function send(msg: Message, conversation: Conversation) {
         {
           role: "system",
           content:
-            "Act as a really friendly expert travel planer AI. You are travelGPT. As a smart itinerary planner with extensive knowledge of places around the world, your task is to determine the user's travel destinations and any specific interests or preferences from their message. Create an itinerary that caters to the user's needs, making sure to name all activities, restaurants, and attractions specifically. When creating the itinerary, also consider factors such as time constraints and transportation options. Additionally, all attractions and restaurants listed in the itinerary must exist and be named specifically. During subsequent revisions, the itinerary can be modified, while keeping in mind the practicality of the itinerary. New place for each day. It's important to ensure that the number of activities per day is appropriate, and if the user doesn't specify otherwise, the default itinerary length is five days. The itinerary length should remain the same unless there is a change by the user's message.",
+            "Act as a really friendly expert travel planer AI. You are travelGPT. As a smart itinerary planner with extensive knowledge of places around the world, your task is to determine the user's travel destinations and any specific interests or preferences from their message.",
         },
         {
           role: "system",
-          content: `Format your response as a JSON object and use this typescript interface as a reference: ${EXAMPLE}`,
+          content:
+            "Create an itinerary that caters to the user's needs, making sure to name all activities, restaurants, and attractions specifically. When creating the itinerary, also consider factors such as time constraints and transportation options. Additionally, all attractions and restaurants listed in the itinerary must exist and be named specifically. During subsequent revisions, the itinerary can be modified, while keeping in mind the practicality of the itinerary. New place for each day. It's important to ensure that the number of activities per day is appropriate, and if the user doesn't specify otherwise, the default itinerary length is 5 days. The itinerary length should remain the same unless there is a change by the user's message.",
         },
+        {
+          role: "system",
+          content: `Format your response as a valid JSON object and use this typescript interface as a reference: ${EXAMPLE} - ENSURE THAT THE RESPONSE IS A VALID JSON OBJECT`,
+        },
+        {
+          role: "system",
+          content: "heat: 0.35",
+        },
+        ...conversation.map((item) => ({
+          role: item.role,
+          content: item.content || JSON.stringify(item),
+        })),
         msg,
-        ...conversation,
       ],
     }),
-  } as RequestInit;
-
-  const response = await fetch(URL, options);
-  return (await response.json()) as OpenAiResponse;
+  } as CustomOptions;
 }
 
 const useOpenAi = () => {
-  const { conversation, advanceConversation } = useContext(ConversationContext);
-  const [shouldFetch, setShouldFetch] = useState(false);
-  const [prompt, setPrompt] = useState("");
+  const { conversation, advanceConversation, updateFetchState } =
+    useContext(ConversationContext);
+  const { data, hasError, isLoading, send, clear } =
+    useCallApi<OpenAiResponse>();
 
-  const callApi = useCallback(async () => {
+  const handlePrompt = (prompt: string) => {
     const newMessage = createMessage(prompt, "user");
-
     advanceConversation(newMessage, prompt); // update context with user message
-    const { choices } = await send(newMessage, conversation); // send new user Message
-    const travelRecommendation = JSON.parse(choices[0].message.content) as Trip;
-    console.log(travelRecommendation);
-    advanceConversation(travelRecommendation); // update context with open ai response
-
-    setShouldFetch(false);
-  }, [prompt]);
+    send(createOptions(newMessage, conversation)); // send new user Message
+  };
 
   useEffect(() => {
-    if (shouldFetch) void callApi();
-  }, [callApi, shouldFetch]);
+    if (data) {
+      const { choices } = data;
+      try {
+        const travelRecommendation = JSON.parse(choices[0].message.content) as Trip; // prettier-ignore
+        advanceConversation({ ...travelRecommendation, role: "assistant" }); // update context with open ai response
+      } catch (e) {
+        updateFetchState(false, true);
+      }
+      clear();
+    }
+  }, [advanceConversation, clear, data, updateFetchState]);
 
-  return (prompt: string) => {
-    setShouldFetch(true);
-    setPrompt(prompt);
+  useEffect(() => {
+    updateFetchState(isLoading, hasError);
+  }, [isLoading, hasError, updateFetchState]);
+
+  return {
+    send: handlePrompt,
+    isLoading,
+    hasError,
   };
 };
 

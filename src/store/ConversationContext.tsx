@@ -17,6 +17,8 @@ export const ConversationContext = createContext({} as TConversationContext);
 
 const useConversationContext = () => {
   const [conversation, setConversation] = useState<Conversation>([]);
+  const [isLoading, setLoading] = useState(false);
+  const [hasError, setError] = useState(false);
 
   const advanceConversation = (message: Message | Trip, prompt?: string) => {
     const userMessage = { ...message, prompt: prompt };
@@ -25,10 +27,18 @@ const useConversationContext = () => {
     );
   };
 
+  const updateFetchState = (isLoading: boolean, hasError: boolean) => {
+    setLoading(isLoading);
+    setError(hasError);
+  };
+
   return {
     advanceConversation,
     conversation,
     setConversation,
+    isLoading,
+    hasError,
+    updateFetchState,
   };
 };
 

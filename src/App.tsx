@@ -8,16 +8,13 @@ const theme = createTheme({
   palette: {
     mode: "dark",
   },
+  typography: {
+    fontFamily: ["Noto sans", "sans-serif"].join(", "),
+  },
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        html: {
-          height: "100%" /* Look, it's not fixed anymore! */,
-        },
-        body: {
-          height: "100%",
-        },
-        "#root": {
+        "html, body, #root": {
           height: "100%",
         },
       },

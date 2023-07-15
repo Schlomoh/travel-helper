@@ -1,7 +1,5 @@
 import { styled } from "@mui/material";
 import { Conversation, PromptField } from "../components";
-import { useContext, useEffect } from "react";
-import { ConversationContext } from "../store/ConversationContext";
 
 const PageContainer = styled("main")`
   position: relative;
@@ -17,17 +15,17 @@ const PageContainer = styled("main")`
   @media screen and (min-width: 600px) {
     width: 50%;
     left: 50%;
-    translate: -50% 0;
+    translate: calc(-50% - 1rem) 0;
+  }
+
+  @media screen and (min-width: 1300px) {
+    width: 35%;
+    left: 50%;
+    translate: calc(-50% - 1rem) 0;
   }
 `;
 
 const Home = () => {
-  const { conversation } = useContext(ConversationContext);
-
-  useEffect(() => {
-    console.log(conversation);
-  }, [conversation]);
-
   return (
     <PageContainer>
       <Conversation></Conversation>

@@ -3,11 +3,11 @@ export interface Trip {
   days: Days;
 }
 
-interface Days {
+export interface Days {
   [day: string]: Activity[];
 }
 
-interface Activity {
+export interface Activity {
   activityName: string;
   specificLocation: string;
   plannedTime: string;

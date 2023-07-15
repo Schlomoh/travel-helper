@@ -1,45 +1,96 @@
 import { useContext } from "react";
+import {
+  Backdrop,
+  Box,
+  Button,
+  LinearProgress,
+  Paper,
+  styled,
+} from "@mui/material";
+import CachedRoundedIcon from "@mui/icons-material/CachedRounded";
+import { useOpenAi } from "../../utils";
 import { ConversationContext } from "../../store/ConversationContext";
-import { styled } from "@mui/material";
+import MessagesList from "./MessagesList";
+import LoadingMessage from "./LoadingMessage";
+import { CategoryRounded } from "@mui/icons-material";
 
-const Container = styled("div")`
+const Container = styled(Paper)`
   width: 100%;
+  height: calc(100% - 5rem);
+
+  border-radius: 1.5rem;
+  padding-top: 1rem;
+  overflow: scroll;
+`;
+
+const BackdropContainer = styled("div")`
+  position: absolute;
+  top: 1rem;
+  height: calc(100% - 8rem);
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ContentContainer = styled("div")`
+  position: relative;
+  width: inherit;
+  height: 100%;
+
   display: flex;
   flex-direction: column;
   justify-content: start;
-  gap: 0.5rem;
+  gap: 1rem;
 `;
 
-const MessageContainer = styled("div")`
-  padding: 0.5rem;
-  border-radius: 1rem;
-  background-color: #49c0e1;
-  max-width: 50%;
+const Spacer = styled(Box)`
+  flex-grow: 1;
+`;
+
+const StyledButton = styled(Button)`
+  position: relative;
+  left: 0;
+  margin: 0 1rem;
   width: fit-content;
-
-  p {
-    margin: 0;
-    overflow-wrap: break-word;
-  }
-
-  &.user {
-    align-self: flex-end;
-  }
-
-  &.assistent {
-    align-self: flex-start;
-  }
+  border-radius: 1rem;
 `;
+
+const ReloadButton = () => {
+  const { conversation, hasError } = useContext(ConversationContext);
+  const { send } = useOpenAi();
+
+  return hasError ? (
+    <StyledButton
+      startIcon={<CachedRoundedIcon />}
+      variant="outlined"
+      color="error"
+      onClick={() => send(conversation[-1].prompt!)}
+    >
+      Error - Reload
+    </StyledButton>
+  ) : null;
+};
 
 const Conversation = () => {
-  const { conversation } = useContext(ConversationContext);
+  const { isLoading } = useContext(ConversationContext);
   return (
-    <Container>
-      {conversation.map((message, i) => (
-        <MessageContainer className={message.role || "assistent"} key={i}>
-          <p>{message.prompt || message.message}</p>
-        </MessageContainer>
-      ))}
+    <Container variant="outlined">
+      <BackdropContainer>
+        <CategoryRounded
+          htmlColor="rgba(128,128,128, .3)"
+          sx={{ height: "200px", width: "200px" }}
+        ></CategoryRounded>
+      </BackdropContainer>
+      <ContentContainer>
+        <MessagesList />
+        <LoadingMessage />
+        <ReloadButton />
+      </ContentContainer>
+      <Spacer />
+      {isLoading ? <LinearProgress /> : null}
     </Container>
   );
 };
