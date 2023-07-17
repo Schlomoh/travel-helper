@@ -5,6 +5,7 @@ import { MessageContainer } from "./MessagesList";
 
 const LoadingContainer = styled(MessageContainer)`
   &.dots p {
+    border-bottom-left-radius: 0.25rem;
     animation: pulse 0.75s alternate infinite;
 
     @keyframes pulse {
@@ -22,7 +23,7 @@ const LoadingMessage = () => {
   const { isLoading } = useContext(ConversationContext);
 
   return isLoading ? (
-    <LoadingContainer className="dots assistant" elevation={5}>
+    <LoadingContainer className="dots assistant">
       <Typography variant="body1">Thinking...</Typography>
     </LoadingContainer>
   ) : null;

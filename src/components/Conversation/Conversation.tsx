@@ -1,33 +1,44 @@
 import { useContext } from "react";
 import {
-  Backdrop,
-  Box,
   Button,
   LinearProgress,
   Paper,
+  Typography,
   styled,
 } from "@mui/material";
+import { BeachAccessRounded } from "@mui/icons-material";
 import CachedRoundedIcon from "@mui/icons-material/CachedRounded";
-import { useOpenAi } from "../../utils";
 import { ConversationContext } from "../../store/ConversationContext";
 import MessagesList from "./MessagesList";
 import LoadingMessage from "./LoadingMessage";
-import { CategoryRounded } from "@mui/icons-material";
 
 const Container = styled(Paper)`
   width: 100%;
-  height: calc(100% - 5rem);
+  height: calc(100% - 6rem);
 
   border-radius: 1.5rem;
-  padding-top: 1rem;
-  overflow: scroll;
+  overflow: hidden;
 `;
 
 const BackdropContainer = styled("div")`
   position: absolute;
+  z-index: 1;
   top: 1rem;
-  height: calc(100% - 8rem);
+  height: calc(100% - 7rem);
   width: 100%;
+  padding: 1rem;
+  text-align: center;
+
+  h4 {
+    color: rgba(128, 128, 128, 0.3);
+    font-weight: 700;
+  }
+
+  p {
+    margin: 1rem;
+    color: rgba(128, 128, 128, 0.3);
+    font-weight: 500;
+  }
 
   display: flex;
   flex-direction: column;
@@ -37,6 +48,7 @@ const BackdropContainer = styled("div")`
 
 const ContentContainer = styled("div")`
   position: relative;
+  z-index: 2;
   width: inherit;
   height: 100%;
 
@@ -44,10 +56,11 @@ const ContentContainer = styled("div")`
   flex-direction: column;
   justify-content: start;
   gap: 1rem;
-`;
 
-const Spacer = styled(Box)`
-  flex-grow: 1;
+  padding: 1rem 0;
+
+  overflow: scroll;
+  scrollbar-width: none;
 `;
 
 const StyledButton = styled(Button)`
@@ -56,20 +69,20 @@ const StyledButton = styled(Button)`
   margin: 0 1rem;
   width: fit-content;
   border-radius: 1rem;
+  border-bottom-left-radius: 0.25rem;
 `;
 
 const ReloadButton = () => {
-  const { conversation, hasError } = useContext(ConversationContext);
-  const { send } = useOpenAi();
+  const { resend, hasError } = useContext(ConversationContext);
 
   return hasError ? (
     <StyledButton
       startIcon={<CachedRoundedIcon />}
       variant="outlined"
       color="error"
-      onClick={() => send(conversation[-1].prompt!)}
+      onClick={resend}
     >
-      Error - Reload
+      Error - Resend
     </StyledButton>
   ) : null;
 };
@@ -78,19 +91,30 @@ const Conversation = () => {
   const { isLoading } = useContext(ConversationContext);
   return (
     <Container variant="outlined">
+      {isLoading ? (
+        <LinearProgress
+          sx={{
+            position: "relative",
+            bottom: "0",
+            height: ".25rem",
+          }}
+        />
+      ) : null}
       <BackdropContainer>
-        <CategoryRounded
+        <BeachAccessRounded
           htmlColor="rgba(128,128,128, .3)"
           sx={{ height: "200px", width: "200px" }}
-        ></CategoryRounded>
+        ></BeachAccessRounded>
+        <Typography variant="h4">Trip planner</Typography>
+        <Typography variant="body1">
+          Tell your assistant abobut the trip you're looking for
+        </Typography>
       </BackdropContainer>
       <ContentContainer>
         <MessagesList />
         <LoadingMessage />
         <ReloadButton />
       </ContentContainer>
-      <Spacer />
-      {isLoading ? <LinearProgress /> : null}
     </Container>
   );
 };

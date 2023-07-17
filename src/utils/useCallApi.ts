@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 
 export interface CustomOptions extends RequestInit {
   url: string;
@@ -7,7 +7,9 @@ export interface CustomOptions extends RequestInit {
 type CallApi = <TData>() => {
   data: TData | null;
   hasError: boolean;
+  setError: Dispatch<SetStateAction<boolean>>
   isLoading: boolean;
+  setLoading: Dispatch<SetStateAction<boolean>>
   clear: () => void;
   send: (options: CustomOptions) => void;
 };
@@ -27,20 +29,18 @@ const useCallApi: CallApi = <TData>() => {
     setData(null);
   };
 
-  const makeRequest = useCallback(
-    async ({ url, ...options }: CustomOptions) => {
-      try {
-        const response = await fetch(url, options);
-        setData((await response.json()) as TData);
-      } catch (error) {
-        reset();
-        setError(true);
-        console.error(error);
-      }
+  const makeRequest = useCallback(async () => {
+    const { url, ...rest } = options!;
+    try {
+      const response = await fetch(url, rest);
+      setData((await response.json()) as TData);
+    } catch (error) {
+      setError(true);
+      console.error(error);
+    } finally {
       reset();
-    },
-    []
-  );
+    }
+  }, [options]);
 
   useEffect(() => {
     if (!options) return;
@@ -48,13 +48,15 @@ const useCallApi: CallApi = <TData>() => {
     setError(false);
     setLoading(true);
 
-    void makeRequest(options);
+    void makeRequest();
   }, [makeRequest, options]);
 
   return {
     data,
     hasError,
+    setError,
     isLoading,
+    setLoading,
     clear,
     send: (options: CustomOptions) => {
       setOptions(options);

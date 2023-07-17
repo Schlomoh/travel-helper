@@ -1,6 +1,6 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useContext, useState } from "react";
 import { Button, Paper, TextField, styled } from "@mui/material";
-import { useOpenAi } from "../../utils";
+import { ConversationContext } from "../../store";
 
 const Container = styled(Paper)`
   height: fit-content;
@@ -39,7 +39,7 @@ const StyledButton = styled(Button)`
 
 const PromptField = () => {
   const [prompt, setPrompt] = useState("");
-  const { send, isLoading } = useOpenAi();
+  const { send, isLoading, hasError } = useContext(ConversationContext);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPrompt(e.target.value);
@@ -58,12 +58,13 @@ const PromptField = () => {
         placeholder="Describe where you want to go"
         value={prompt}
         onChange={handleChange}
+        disabled={hasError}
         size="small"
       ></StyledTextField>
       <StyledButton
         variant="contained"
         onClick={handleSend}
-        disabled={!prompt || isLoading}
+        disabled={!prompt || isLoading || hasError}
       >
         Send
       </StyledButton>

@@ -1,6 +1,7 @@
 import { ReactNode, createContext, useState } from "react";
 import { Message } from "../types/openAi";
 import { Trip } from "../types/trip";
+import { useOpenAi } from "../utils";
 
 interface Props {
   children: ReactNode;
@@ -13,34 +14,21 @@ interface PromptMessage extends Partial<Message>, Partial<Trip> {
 export type Conversation = PromptMessage[];
 
 type TConversationContext = ReturnType<typeof useConversationContext>;
-export const ConversationContext = createContext({} as TConversationContext);
-
 const useConversationContext = () => {
   const [conversation, setConversation] = useState<Conversation>([]);
-  const [isLoading, setLoading] = useState(false);
-  const [hasError, setError] = useState(false);
-
-  const advanceConversation = (message: Message | Trip, prompt?: string) => {
-    const userMessage = { ...message, prompt: prompt };
-    setConversation(
-      (previousMessages) => [...previousMessages, userMessage] as Conversation
-    );
-  };
-
-  const updateFetchState = (isLoading: boolean, hasError: boolean) => {
-    setLoading(isLoading);
-    setError(hasError);
-  };
+  const { send, resend, isLoading, hasError } = useOpenAi({conversation, setConversation});
 
   return {
-    advanceConversation,
+    send,
+    resend,
     conversation,
     setConversation,
     isLoading,
     hasError,
-    updateFetchState,
   };
 };
+
+export const ConversationContext = createContext({} as TConversationContext);
 
 const ConversationContextProvider = ({ children }: Props) => {
   const value = useConversationContext();

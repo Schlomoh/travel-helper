@@ -1,9 +1,13 @@
-import { useContext, useEffect } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
 import { Message, OpenAiResponse } from "../types/openAi";
-import { ConversationContext } from "../store";
 import { Trip } from "../types/trip";
 import { Conversation } from "../store/ConversationContext";
 import useCallApi, { CustomOptions } from "./useCallApi";
+
+interface ConversationState {
+  conversation: Conversation;
+  setConversation: Dispatch<SetStateAction<Conversation>>;
+}
 
 const KEY = import.meta.env.VITE_OPEN_AI_KEY as string;
 const URL = "https://api.openai.com/v1/chat/completions";
@@ -24,7 +28,7 @@ interface Trip {
 function createMessage(msg: string, role: Message["role"]): Message {
   return {
     role,
-    content: `Please create only the itinerary from the users' message: "${msg}".`,
+    content: `Please create only the itinerary from the users' message: "${msg}"`,
   };
 }
 
@@ -38,6 +42,7 @@ function createOptions(msg: Message, conversation: Conversation) {
     },
     body: JSON.stringify({
       model: "gpt-3.5-turbo",
+      temperature: 0.3,
       messages: [
         {
           role: "system",
@@ -51,11 +56,7 @@ function createOptions(msg: Message, conversation: Conversation) {
         },
         {
           role: "system",
-          content: `Format your response as a valid JSON object and use this typescript interface as a reference: ${EXAMPLE} - ENSURE THAT THE RESPONSE IS A VALID JSON OBJECT`,
-        },
-        {
-          role: "system",
-          content: "heat: 0.35",
+          content: `Format your response as a valid JSON object and use this typescript interface as a reference: ${EXAMPLE} -  NO CONVERSATION OUTSIDE OF THE JSON OBJECT RESPONSE. ENSURE THAT THE RESPONSE IS A VALID JSON OBJECT.`,
         },
         ...conversation.map((item) => ({
           role: item.role,
@@ -67,16 +68,36 @@ function createOptions(msg: Message, conversation: Conversation) {
   } as CustomOptions;
 }
 
-const useOpenAi = () => {
-  const { conversation, advanceConversation, updateFetchState } =
-    useContext(ConversationContext);
-  const { data, hasError, isLoading, send, clear } =
+const useOpenAi = ({ conversation, setConversation }: ConversationState) => {
+  const { data, hasError, setError, isLoading, setLoading, send, clear } =
     useCallApi<OpenAiResponse>();
+
+  const advanceConversation = useCallback(
+    (message: Message | Trip, prompt?: string) => {
+      const userMessage = { ...message, prompt: prompt };
+      setConversation(
+        (previousMessages) => [...previousMessages, userMessage] as Conversation
+      );
+    },
+    [setConversation]
+  );
 
   const handlePrompt = (prompt: string) => {
     const newMessage = createMessage(prompt, "user");
     advanceConversation(newMessage, prompt); // update context with user message
     send(createOptions(newMessage, conversation)); // send new user Message
+  };
+
+  const resend = () => {
+    const message = conversation.slice(-1)[0];
+    const cleanedConv = conversation.slice(0, -1);
+
+    send(
+      createOptions(
+        { content: message.content!, role: message.role! },
+        cleanedConv
+      )
+    );
   };
 
   useEffect(() => {
@@ -86,18 +107,16 @@ const useOpenAi = () => {
         const travelRecommendation = JSON.parse(choices[0].message.content) as Trip; // prettier-ignore
         advanceConversation({ ...travelRecommendation, role: "assistant" }); // update context with open ai response
       } catch (e) {
-        updateFetchState(false, true);
+        setError(true);
+        setLoading(false);
       }
       clear();
     }
-  }, [advanceConversation, clear, data, updateFetchState]);
-
-  useEffect(() => {
-    updateFetchState(isLoading, hasError);
-  }, [isLoading, hasError, updateFetchState]);
+  }, [advanceConversation, clear, data, setError, setLoading]);
 
   return {
     send: handlePrompt,
+    resend,
     isLoading,
     hasError,
   };

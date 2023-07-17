@@ -3,6 +3,17 @@ import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import PlaceIcon from "@mui/icons-material/Place";
 import { Activity } from "../../types/trip";
 
+const Container = styled(Box)`
+  display: grid;
+  flex-direction: grid;
+  grid-template-columns: 1fr 2fr;
+`;
+
+const ImageContainer = styled(Box)`
+  width: 100%;
+  height: 100%;
+`;
+
 const ActivityTitle = styled(Typography)`
   line-height: 1.2;
 `;
@@ -32,27 +43,33 @@ const ActivityDetails = (activity: Activity) => {
   return (
     <>
       <Divider sx={{ m: "1rem 0" }}></Divider>
-
-      <Chip
-        size="small"
-        variant="filled"
-        color="primary"
-        sx={{mb: 1}}
-        icon={<ScheduleRoundedIcon />}
-        label={plannedTime}
-      />
-      <ActivityTitle variant="h6">{activityName}</ActivityTitle>
-      <Description variant="body2">{description}</Description>
-      <LocationTextContainer
-        variant="outlined"
-        startIcon={<PlaceIcon />}
-        fullWidth
-      >
-        <LocationText variant="overline" textAlign="start">
-          {specificLocation}
-        </LocationText>
-        <Box flexGrow={1} />
-      </LocationTextContainer>
+      <Container>
+        <ImageContainer>
+          <img src="" alt={specificLocation} />
+        </ImageContainer>
+        <Box>
+          <Chip
+            size="small"
+            variant="filled"
+            color="primary"
+            sx={{ mb: 1 }}
+            icon={<ScheduleRoundedIcon />}
+            label={plannedTime}
+          />
+          <ActivityTitle variant="h6">{activityName}</ActivityTitle>
+          <Description variant="body2">{description}</Description>
+          <LocationTextContainer
+            variant="outlined"
+            startIcon={<PlaceIcon />}
+            fullWidth
+          >
+            <LocationText variant="overline" textAlign="start">
+              {specificLocation}
+            </LocationText>
+            <Box flexGrow={1} />
+          </LocationTextContainer>
+        </Box>
+      </Container>
     </>
   );
 };

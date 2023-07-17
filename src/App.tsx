@@ -6,7 +6,7 @@ import { ConversationContextProvider } from "./store";
 
 const theme = createTheme({
   palette: {
-    mode: "dark",
+    mode: "light",
   },
   typography: {
     fontFamily: ["Noto sans", "sans-serif"].join(", "),

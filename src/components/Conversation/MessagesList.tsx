@@ -18,18 +18,22 @@ export const MessageContainer = styled(Paper)`
   }
 
   &.user {
+    border-bottom-right-radius: 0.25rem;
     margin: 0 1rem 0 0;
     align-self: flex-end;
     background-color: ${({ theme }) => theme.palette.primary.dark};
     color: ${({ theme }) => theme.palette.primary.contrastText};
-  }
+}
 
-  &.assistant {
+&.assistant {
+    border-bottom-left-radius: 0.25rem;
     margin: 0 0 0 1rem;
     align-self: flex-start;
+    background-color: ${({ theme }) => theme.palette.info.light};
+    color: ${({ theme }) => theme.palette.info.contrastText};
 
     @media screen and (max-width: 600px) {
-        max-width: 90%;
+      max-width: 90%;
     }
   }
 `;
