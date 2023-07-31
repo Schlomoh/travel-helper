@@ -1,5 +1,6 @@
 export interface Trip {
   message: string;
+  estimatedTotalPrice: string;
   days: Days;
 }
 
@@ -8,6 +9,7 @@ export interface Days {
 }
 
 export interface Activity {
+  estimatedPrice: string;
   activityName: string;
   specificLocation: string;
   plannedTime: string;

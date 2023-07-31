@@ -2,6 +2,7 @@ import { Box, Button, Chip, Divider, Typography, styled } from "@mui/material";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import PlaceIcon from "@mui/icons-material/Place";
 import { Activity } from "../../types/trip";
+import { PriceCheckRounded } from "@mui/icons-material";
 
 const Container = styled(Box)`
   display: grid;
@@ -39,7 +40,13 @@ const LocationText = styled(ActivityTitle)`
 `;
 
 const ActivityDetails = (activity: Activity) => {
-  const { activityName, description, specificLocation, plannedTime } = activity;
+  const {
+    activityName,
+    description,
+    specificLocation,
+    plannedTime,
+    estimatedPrice,
+  } = activity;
   return (
     <>
       <Divider sx={{ m: "1rem 0" }}></Divider>
@@ -55,6 +62,14 @@ const ActivityDetails = (activity: Activity) => {
             sx={{ mb: 1 }}
             icon={<ScheduleRoundedIcon />}
             label={plannedTime}
+          />
+          <Chip
+            size="small"
+            variant="filled"
+            color="primary"
+            sx={{ mb: 1 }}
+            icon={<PriceCheckRounded />}
+            label={estimatedPrice}
           />
           <ActivityTitle variant="h6">{activityName}</ActivityTitle>
           <Description variant="body2">{description}</Description>

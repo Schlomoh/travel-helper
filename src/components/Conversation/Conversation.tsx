@@ -14,7 +14,7 @@ import LoadingMessage from "./LoadingMessage";
 
 const Container = styled(Paper)`
   width: 100%;
-  height: calc(100% - 6rem);
+  height: calc(100% - 5rem);
 
   border-radius: 1.5rem;
   overflow: hidden;
@@ -88,7 +88,7 @@ const ReloadButton = () => {
 };
 
 const Conversation = () => {
-  const { isLoading } = useContext(ConversationContext);
+  const { isLoading, conversation } = useContext(ConversationContext);
   return (
     <Container variant="outlined">
       {isLoading ? (
@@ -100,16 +100,18 @@ const Conversation = () => {
           }}
         />
       ) : null}
-      <BackdropContainer>
-        <BeachAccessRounded
-          htmlColor="rgba(128,128,128, .3)"
-          sx={{ height: "200px", width: "200px" }}
-        ></BeachAccessRounded>
-        <Typography variant="h4">Trip planner</Typography>
-        <Typography variant="body1">
-          Tell your assistant abobut the trip you're looking for
-        </Typography>
-      </BackdropContainer>
+      {conversation.length <= 0 ? (
+        <BackdropContainer>
+          <BeachAccessRounded
+            htmlColor="rgba(128,128,128, .3)"
+            sx={{ height: "200px", width: "200px" }}
+          ></BeachAccessRounded>
+          <Typography variant="h4">TravelGPT</Typography>
+          <Typography variant="body1">
+            Tell your assistant abobut the trip you're looking for
+          </Typography>
+        </BackdropContainer>
+      ) : null}
       <ContentContainer>
         <MessagesList />
         <LoadingMessage />

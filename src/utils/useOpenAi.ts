@@ -15,12 +15,14 @@ const URL = "https://api.openai.com/v1/chat/completions";
 const EXAMPLE = `
 interface Trip {
   message: string;
+  estimatedTotalPrice: number;
   days: {
     [day: string]: {
       activityName: string;
       specificLocation: string; // as "location_name - city, country code"
       plannedTime: string;
       description: string;
+      estimatedPrice: number;
     }[];
   }
 }`;
@@ -44,6 +46,16 @@ function createOptions(msg: Message, conversation: Conversation) {
       model: "gpt-3.5-turbo",
       temperature: 0.3,
       messages: [
+        {
+          role: "system",
+          content:
+            "Act as a really friendly expert travel planer AI. You are travelGPT. As a smart itinerary planner with extensive knowledge of places around the world, your task is to determine the user's travel destinations and any specific interests or preferences from their message.",
+        },
+        {
+          role: "system",
+          content:
+            "Estimate an appropriate price per activity and a total sum of all the combined ativity prices. You should consider all costly factors of the trip. Make te estimates as real as possible",
+        },
         {
           role: "system",
           content:
