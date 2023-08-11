@@ -1,18 +1,36 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Box, Button, Chip, Divider, Typography, styled } from "@mui/material";
-import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
+
 import PlaceIcon from "@mui/icons-material/Place";
+import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
+import MonetizationOnRoundedIcon from "@mui/icons-material/MonetizationOnRounded";
+
 import { Activity } from "../../types/trip";
-import { PriceCheckRounded } from "@mui/icons-material";
+import { useMapsPlaces } from "../../utils";
+import usePlacesImage from "../../utils/usePlacesImage";
 
 const Container = styled(Box)`
   display: grid;
   flex-direction: grid;
   grid-template-columns: 1fr 2fr;
+  gap: 1rem;
 `;
 
 const ImageContainer = styled(Box)`
   width: 100%;
   height: 100%;
+  aspect-ratio: 1;
+
+  overflow: hidden;
+  
+  border-radius: 1rem;
+  border: 2px solid rgba(128, 128, 128, 0.3);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const ActivityTitle = styled(Typography)`
@@ -47,30 +65,34 @@ const ActivityDetails = (activity: Activity) => {
     plannedTime,
     estimatedPrice,
   } = activity;
+
+  const { imageReference } = useMapsPlaces(specificLocation);
+  const { imageSrc } = usePlacesImage(imageReference);
+
   return (
     <>
       <Divider sx={{ m: "1rem 0" }}></Divider>
       <Container>
         <ImageContainer>
-          <img src="" alt={specificLocation} />
+          <img src={imageSrc ?? ""} alt={specificLocation} />
         </ImageContainer>
         <Box>
-          <Chip
-            size="small"
-            variant="filled"
-            color="primary"
-            sx={{ mb: 1 }}
-            icon={<ScheduleRoundedIcon />}
-            label={plannedTime}
-          />
-          <Chip
-            size="small"
-            variant="filled"
-            color="primary"
-            sx={{ mb: 1 }}
-            icon={<PriceCheckRounded />}
-            label={estimatedPrice}
-          />
+          <Box sx={{ mb: 1, display: "flex", gap: 1 }}>
+            <Chip
+              size="small"
+              variant="filled"
+              color="primary"
+              icon={<ScheduleRoundedIcon />}
+              label={plannedTime}
+            />
+            <Chip
+              size="small"
+              variant="filled"
+              color="primary"
+              icon={<MonetizationOnRoundedIcon />}
+              label={estimatedPrice ? estimatedPrice + "$" : "Potentially free"}
+            />
+          </Box>
           <ActivityTitle variant="h6">{activityName}</ActivityTitle>
           <Description variant="body2">{description}</Description>
           <LocationTextContainer

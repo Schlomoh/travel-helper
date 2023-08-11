@@ -23,9 +23,9 @@ export const MessageContainer = styled(Paper)`
     align-self: flex-end;
     background-color: ${({ theme }) => theme.palette.primary.dark};
     color: ${({ theme }) => theme.palette.primary.contrastText};
-}
+  }
 
-&.assistant {
+  &.assistant {
     border-bottom-left-radius: 0.25rem;
     margin: 0 0 0 1rem;
     align-self: flex-start;

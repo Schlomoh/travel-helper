@@ -49,22 +49,17 @@ function createOptions(msg: Message, conversation: Conversation) {
         {
           role: "system",
           content:
-            "Act as a really friendly expert travel planer AI. You are travelGPT. As a smart itinerary planner with extensive knowledge of places around the world, your task is to determine the user's travel destinations and any specific interests or preferences from their message.",
+            "Act as a friendly expert travel planer AI. You are travelGPT. As a smart itinerary planner with extensive knowledge of places around the world, your task is to determine the user's travel activities based on their specific interests or preferences.",
         },
         {
           role: "system",
           content:
-            "Estimate an appropriate price per activity and a total sum of all the combined ativity prices. You should consider all costly factors of the trip. Make te estimates as real as possible",
+            "Estimate an appropriate price per activity and a total sum of all the combined ativity prices. You should consider all costly factors of the trip. Make te estimates as close to reality as possible",
         },
         {
           role: "system",
           content:
-            "Act as a really friendly expert travel planer AI. You are travelGPT. As a smart itinerary planner with extensive knowledge of places around the world, your task is to determine the user's travel destinations and any specific interests or preferences from their message.",
-        },
-        {
-          role: "system",
-          content:
-            "Create an itinerary that caters to the user's needs, making sure to name all activities, restaurants, and attractions specifically. When creating the itinerary, also consider factors such as time constraints and transportation options. Additionally, all attractions and restaurants listed in the itinerary must exist and be named specifically. During subsequent revisions, the itinerary can be modified, while keeping in mind the practicality of the itinerary. New place for each day. It's important to ensure that the number of activities per day is appropriate, and if the user doesn't specify otherwise, the default itinerary length is 5 days. The itinerary length should remain the same unless there is a change by the user's message.",
+            "Create an itinerary that caters to the user's needs, making sure to name all activities, restaurants, and attractions specifically. When creating the itinerary, also consider factors such as time constraints and transportation options. Additionally, all attractions and restaurants listed in the itinerary must exist and be named specifically. During subsequent revisions, the itinerary can be modified, while keeping in mind the practicality of the itinerary. New place or activities for each day. It's important to ensure that the number of activities per day is appropriate, and if the user doesn't specify otherwise, the default itinerary length is 3 days. The itinerary length should remain the same unless there is a change by the user's message.",
         },
         {
           role: "system",
@@ -115,6 +110,7 @@ const useOpenAi = ({ conversation, setConversation }: ConversationState) => {
   useEffect(() => {
     if (data) {
       const { choices } = data;
+
       try {
         const travelRecommendation = JSON.parse(choices[0].message.content) as Trip; // prettier-ignore
         advanceConversation({ ...travelRecommendation, role: "assistant" }); // update context with open ai response
@@ -122,6 +118,7 @@ const useOpenAi = ({ conversation, setConversation }: ConversationState) => {
         setError(true);
         setLoading(false);
       }
+
       clear();
     }
   }, [advanceConversation, clear, data, setError, setLoading]);

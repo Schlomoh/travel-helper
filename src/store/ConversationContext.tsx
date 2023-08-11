@@ -16,7 +16,10 @@ export type Conversation = PromptMessage[];
 type TConversationContext = ReturnType<typeof useConversationContext>;
 const useConversationContext = () => {
   const [conversation, setConversation] = useState<Conversation>([]);
-  const { send, resend, isLoading, hasError } = useOpenAi({conversation, setConversation});
+  const { send, resend, isLoading, hasError } = useOpenAi({
+    conversation,
+    setConversation,
+  });
 
   return {
     send,

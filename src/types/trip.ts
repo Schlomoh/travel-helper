@@ -14,4 +14,5 @@ export interface Activity {
   specificLocation: string;
   plannedTime: string;
   description: string;
+  picture?: string;
 }

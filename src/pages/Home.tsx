@@ -7,19 +7,19 @@ const PageContainer = styled("main")`
   flex-direction: column;
   justify-content: space-between;
 
-  height: 100%;
+  height:100%;
   width: calc(100% - 2rem);
   margin: 0 1rem;
   padding: 1rem 0;
 
   @media screen and (min-width: 600px) {
-    width: 50%;
+    width: 75%;
     left: 50%;
     translate: calc(-50% - 1rem) 0;
   }
 
   @media screen and (min-width: 1300px) {
-    width: 35%;
+    width: 50%;
     left: 50%;
     translate: calc(-50% - 1rem) 0;
   }

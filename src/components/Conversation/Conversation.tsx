@@ -17,7 +17,8 @@ const Container = styled(Paper)`
   height: calc(100% - 5rem);
 
   border-radius: 1.5rem;
-  overflow: hidden;
+  overflow: scroll;
+  scrollbar-width: none;
 `;
 
 const BackdropContainer = styled("div")`
@@ -50,17 +51,13 @@ const ContentContainer = styled("div")`
   position: relative;
   z-index: 2;
   width: inherit;
-  height: 100%;
+
+  margin: 1rem 0;
 
   display: flex;
   flex-direction: column;
   justify-content: start;
   gap: 1rem;
-
-  padding: 1rem 0;
-
-  overflow: scroll;
-  scrollbar-width: none;
 `;
 
 const StyledButton = styled(Button)`
